@@ -1,0 +1,9 @@
+syntax on
+set number
+set expandtab
+set tabstop=2
+set ai
+set ruler
+
+set incsearch
+set hlsearch
