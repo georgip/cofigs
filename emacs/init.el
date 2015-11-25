@@ -1,3 +1,4 @@
+
 (require 'cl)
 (load "package")
 (package-initialize)
@@ -72,12 +73,10 @@
 (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
 
-(setq make-backup-files nil)
+;; This would disable backup files.
+;; (setq make-backup-files nil)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
-
-(global-set-key (kbd "RET") 'newline-and-indent)
-(global-set-key (kbd "C-c c") 'comment-or-uncomment-region)
 
 (setq echo-keystrokes 0.1
       use-dialog-box nil
@@ -90,7 +89,6 @@
 
 (require 'autopair)
 (require 'auto-complete-config)
-(ac-config-default)
 
 (if window-system
     (load-theme 'solarized-light t)
@@ -113,5 +111,14 @@
     (untabify-buffer)
     (delete-trailing-whitespace))
 
+(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "C-c c") 'comment-or-uncomment-region)
+(global-set-key (kbd "C-c a") 'auto-complete-mode)
 (global-set-key (kbd "C-c n") 'cleanup-buffer)
+
+(ac-config-default)
 (setq-default show-trailing-whitespace t)
+(add-hook 'c-mode-common-hook
+          (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
+(add-hook 'python-mode-hook
+          (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
