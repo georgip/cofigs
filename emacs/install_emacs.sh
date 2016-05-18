@@ -9,7 +9,7 @@ APPLICATION=emacs-${VERSION}
 ARCHIVE=${APPLICATION}.tar.gz
 
 apt-get update -y
-apt-get install -y build-essential
+apt-get install -y build-essential libncurses-dev
 apt-get build-dep -y emacs
 
 cd /tmp
