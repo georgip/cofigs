@@ -114,6 +114,7 @@
 (global-set-key (kbd "C-c c") 'comment-or-uncomment-region)
 (global-set-key (kbd "C-c a") 'auto-complete-mode)
 (global-set-key (kbd "C-c n") 'cleanup-buffer)
+(global-set-key (kbd "C-c l") 'toggle-truncate-lines)
 
 (ac-config-default)
 (setq-default show-trailing-whitespace t)
