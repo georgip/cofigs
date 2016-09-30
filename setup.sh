@@ -13,6 +13,7 @@ ln -s ${PWD}/emacs/init.el ${HOME}/.emacs.d/init.el
 cat >> ${HOME}/.bashrc <<EOF
 
 alias g='git'
+alias emacs='emacs -nw'
 
 export EDITOR=vim
 git_shell_config=${PWD}/git/git_shell_config
