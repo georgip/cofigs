@@ -98,6 +98,7 @@
       indent-tabs-mode nil)
 (setq-default indent-tabs-mode nil)
 (setq-default python-indent-offset 4)
+(setq js-indent-level 2)
 
 ;; Converting tabs to spaces and removing trailing whitespaces.
 (defun untabify-buffer ()
@@ -122,3 +123,7 @@
           (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
 (add-hook 'python-mode-hook
           (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
+
+
+(electric-pair-mode 1)
+
