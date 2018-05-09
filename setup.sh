@@ -29,6 +29,21 @@ function v() {
 
     [ -f "\${path}" ] && source \$path || echo "Python virtual environment not found: \${name}: \${path}" >&2
 }
+
+# k8s namespace (Skyscanner)
+function k8s-set-namespace() {
+    local namespace=$1
+    kubectl config set-context prod-eu-west-1-cluster --namespace=$namespace
+    kubectl config set-context prod-eu-central-1-cluster --namespace=$namespace
+    kubectl config set-context prod-ap-southeast-1-cluster --namespace=$namespace
+    kubectl config set-context prod-ap-northeast-1-cluster --namespace=$namespace
+}
+
+# k8s config (Skyscanner)
+function k8s-use-region() {
+    local region=$1
+    kubectl config use-context "prod-${region}-cluster"
+}
 EOF
 
 cat >> ${HOME}/.bash_aliases <<EOF
