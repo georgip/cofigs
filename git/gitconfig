@@ -16,6 +16,7 @@
         waiting = "!f() { git log origin/$(git rev-parse --abbrev-ref HEAD)..$(git rev-parse --abbrev-ref HEAD); }; f"
         po = "!git push origin \"$(git rev-parse --abbrev-ref HEAD)\""
         aliases = config --get-regexp alias
+        praise = blame
         commit-fix = commit --amend --no-edit
 [pull]
         rebase = true
