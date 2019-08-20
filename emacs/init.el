@@ -1,129 +1,98 @@
-
 (require 'cl)
 (load "package")
 (package-initialize)
 (add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-
-(setq package-archive-enable-alist '(("melpa" deft magit)))
-(defvar emacs-packages '(ac-slime
-			 auto-complete
-			 autopair
-			 clojure-mode
-			 feature-mode
-			 gist
-			 go-mode
-			 markdown-mode
-			 marmalade
-			 nodejs-repl
-			 org
-			 paredit
-			 php-mode
-			 restclient
-			 rvm
-			 scala-mode
-			 web-mode
-			 yaml-mode)
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(defvar gpopov/packages '(solarized-theme
+			  auto-complete
+			  autopair
+                          writegood-mode
+			  markdown-mode
+                          yaml-mode
+			  elpy)
   "Default packages")
 
-(defun emacs-packages-installed-p ()
-  (loop for pkg in emacs-packages
+(defun gpopov/packages-installed-p ()
+  (loop for pkg in gpopov/packages
         when (not (package-installed-p pkg)) do (return nil)
         finally (return t)))
 
-(unless (emacs-packages-installed-p)
+(unless (gpopov/packages-installed-p)
   (message "%s" "Refreshing package database...")
   (package-refresh-contents)
-  (dolist (pkg emacs-packages)
+  (dolist (pkg gpopov/packages)
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-(setq inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
+;; Enable elpy for improved Python mode
+(elpy-enable)
 
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(column-number-mode)
-
-(delete-selection-mode t)
-(transient-mark-mode t)
-(setq x-select-enable-clipboard t)
-
-(when window-system
-  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-  (set-face-attribute 'default nil
-                      :family "Inconsolata"
-                      :height 140
-                      :weight 'normal
-                      :width 'normal)
-
-  (when (functionp 'set-fontset-font)
-    (set-fontset-font "fontset-default"
-                      'unicode
-                      (font-spec :family "DejaVu Sans Mono"
-                                 :width 'normal
-                                 :size 12.4
-                                 :weight 'normal))))
-
-(setq-default indicate-empty-lines t)
-(when (not indicate-empty-lines)
-  (toggle-indicate-empty-lines))
-
-;; This would disable backup files.
-;; (setq make-backup-files nil)
-
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-(setq echo-keystrokes 0.1
-      use-dialog-box nil
-      visible-bell t)
-(show-paren-mode t)
-
-
-(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
-
-(require 'autopair)
-(require 'auto-complete-config)
-
+;; Set theme for window and non-window mode
 (if window-system
     (load-theme 'solarized-light t)
   (load-theme 'wombat t))
 
-;; Uses spaces instead of tabs.
-(setq tab-width 2
-      indent-tabs-mode nil)
+;; Avoid yes/no and use y/n
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Hide the menu at the top of the screen
+(menu-bar-mode -1)
+
+;; Show both line and column number
+(column-number-mode)
+
+;; Delete selected text when typing
+(delete-selection-mode t)
+
+;; Disable tabs
 (setq-default indent-tabs-mode nil)
-(setq-default python-indent-offset 4)
-(setq js-indent-level 2)
+(setq indent-tabs-mode nil)
 
-;; Converting tabs to spaces and removing trailing whitespaces.
+;; Disable back-up files
+(setq make-backup-files nil)
+
+;; Configure mode for simple string-based auto-complete
+(require 'auto-complete-config)
+
+;; Show matching parenthesis pairs
+(show-paren-mode t)
+
+;; Close pairs automatically
+(require 'autopair)
+(electric-pair-mode 1)
+
+;; Highlight trailing whitespaces
+(setq-default show-trailing-whitespace t)
+
+;; After saving Python/C files delete the trailing whitespaces
+(add-hook 'python-mode-hook
+	  (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
+(add-hook 'c-mode-common-hook
+	  (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
+
+;; Utility functions
 (defun untabify-buffer ()
-    (interactive)
-    (untabify (point-min) (point-max)))
+  "Replace tabs with spaces"
+  (interactive)
+  (untabify (point-min) (point-max)))
 
-(defun cleanup-buffer ()
-    "Perform a bunch of operations on the whitespace content of a buffer."
-    (interactive)
-    (untabify-buffer)
-    (delete-trailing-whitespace))
+(defun clean-whitespaces ()
+  "Clean-up the whitespaces in the current buffer"
+  (interactive)
+  (untabify-buffer)
+  (delete-trailing-whitespace))
 
+(defun goto-def-or-rgrep ()
+  "Go to definition of thing at point or do an rgrep in project if that fails"
+  (interactive)
+  (condition-case nil (elpy-goto-definition)
+    (error (elpy-rgrep-symbol (thing-at-point 'symbol)))))
+
+;; Key binding
+(define-key elpy-mode-map (kbd "M-.") 'goto-def-or-rgrep)
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "C-c c") 'comment-or-uncomment-region)
 (global-set-key (kbd "C-c a") 'auto-complete-mode)
-(global-set-key (kbd "C-c n") 'cleanup-buffer)
-(global-set-key (kbd "C-c l") 'toggle-truncate-lines)
-
-(ac-config-default)
-(setq-default show-trailing-whitespace t)
-(add-hook 'c-mode-common-hook
-          (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
-(add-hook 'python-mode-hook
-          (lambda () (add-to-list 'write-file-functions 'delete-trailing-whitespace)))
-
-
-(electric-pair-mode 1)
-
+(global-set-key (kbd "C-c n") 'clean-whitespaces)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-+") 'text-scale-increase)
